@@ -1,0 +1,3 @@
+db.url=jdbc:h2:./data/quiz_system
+db.username=root
+db.password=Denys.123
