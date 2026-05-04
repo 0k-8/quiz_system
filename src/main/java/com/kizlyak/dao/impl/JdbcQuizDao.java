@@ -18,7 +18,7 @@ public class JdbcQuizDao implements QuizDao {
   }
 
   @Override
-  public void save(Quiz quiz) {
+  public void saveQuiz(Quiz quiz) {
     String sql =
         "INSERT INTO quizzes (id, title, time_limit_minutes, created_by) VALUES (?, ?, ?, ?)";
     Connection connection = null;

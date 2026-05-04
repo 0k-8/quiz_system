@@ -19,7 +19,7 @@ public class JdbcUserDao implements UserDao {
   }
 
   @Override
-  public void save(User user) {
+  public void saveUser(User user) {
     String sql =
         "INSERT INTO users (id, last_name, first_name, email, password_hash, role, team_id) VALUES"
             + " (?, ?, ?, ?, ?, ?, ?)";

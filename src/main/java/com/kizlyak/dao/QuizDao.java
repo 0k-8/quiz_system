@@ -7,7 +7,7 @@ import java.util.UUID;
 import com.kizlyak.entity.Quiz;
 
 public interface QuizDao {
-  void save(Quiz quiz);
+  void saveQuiz(Quiz quiz);
 
   Optional<Quiz> findById(UUID id);
 

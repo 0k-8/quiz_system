@@ -6,7 +6,7 @@ import java.util.UUID;
 import com.kizlyak.entity.Question;
 
 public interface QuestionDao {
-  void save(Question question);
+  void saveQuestion(Question question);
 
   List<Question> findByQuizId(UUID quizId);
 

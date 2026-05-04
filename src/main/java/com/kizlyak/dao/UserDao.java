@@ -7,7 +7,7 @@ import java.util.UUID;
 import com.kizlyak.entity.User;
 
 public interface UserDao {
-  void save(User user);
+  void saveUser(User user);
 
   Optional<User> findById(UUID id);
 

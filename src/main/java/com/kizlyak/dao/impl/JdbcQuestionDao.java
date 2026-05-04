@@ -17,7 +17,7 @@ public class JdbcQuestionDao implements QuestionDao {
   }
 
   @Override
-  public void save(Question q) {
+  public void saveQuestion(Question q) {
     String sql =
         "INSERT INTO questions (id, quiz_id, content, options_a, options_b, options_c, options_d,"
             + " correct_option) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
