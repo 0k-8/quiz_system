@@ -3,7 +3,9 @@ package com.kizlyak.dao.impl;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.kizlyak.dao.ResultDao;
 import com.kizlyak.entity.Result;
@@ -11,6 +13,7 @@ import com.kizlyak.infrastructure.ConnectionPool;
 
 public class JdbcResultDao implements ResultDao {
   private final ConnectionPool pool;
+  private final Map<UUID, Result> identityMap = new ConcurrentHashMap<>();
 
   public JdbcResultDao(ConnectionPool pool) {
     this.pool = pool;
@@ -32,6 +35,7 @@ public class JdbcResultDao implements ResultDao {
         stmt.setInt(5, result.getTimeSpentSeconds());
         stmt.setObject(6, result.getCompletedAt());
         stmt.executeUpdate();
+        identityMap.put(result.getId(), result);
       }
     } catch (SQLException | InterruptedException e) {
       throw new RuntimeException("Error saving result", e);
@@ -63,7 +67,9 @@ public class JdbcResultDao implements ResultDao {
         stmt.setInt(1, limit);
         try (ResultSet rs = stmt.executeQuery()) {
           while (rs.next()) {
-            results.add(mapResultSetToResult(rs));
+            Result result = mapResultSetToResult(rs);
+            identityMap.put(result.getId(), result);
+            results.add(result);
           }
         }
       }
@@ -84,7 +90,9 @@ public class JdbcResultDao implements ResultDao {
         stmt.setObject(1, id);
         try (ResultSet rs = stmt.executeQuery()) {
           while (rs.next()) {
-            results.add(mapResultSetToResult(rs));
+            Result result = mapResultSetToResult(rs);
+            identityMap.put(result.getId(), result);
+            results.add(result);
           }
         }
       }

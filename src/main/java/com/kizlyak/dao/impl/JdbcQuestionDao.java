@@ -3,7 +3,9 @@ package com.kizlyak.dao.impl;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.kizlyak.dao.QuestionDao;
 import com.kizlyak.entity.Question;
@@ -11,6 +13,7 @@ import com.kizlyak.infrastructure.ConnectionPool;
 
 public class JdbcQuestionDao implements QuestionDao {
   private final ConnectionPool pool;
+  private final Map<UUID, Question> identityMap = new ConcurrentHashMap<>();
 
   public JdbcQuestionDao(ConnectionPool pool) {
     this.pool = pool;
@@ -35,6 +38,7 @@ public class JdbcQuestionDao implements QuestionDao {
         stmt.setString(
             8, String.valueOf(q.getCorrectOption())); // Конвертуємо char в String для бази
         stmt.executeUpdate();
+        identityMap.put(q.getId(), q);
       }
     } catch (SQLException | InterruptedException e) {
       throw new RuntimeException("Error saving question", e);
@@ -54,7 +58,9 @@ public class JdbcQuestionDao implements QuestionDao {
         stmt.setObject(1, quizId);
         try (ResultSet rs = stmt.executeQuery()) {
           while (rs.next()) {
-            questions.add(mapResultSetToQuestion(rs));
+            Question q = mapResultSetToQuestion(rs);
+            identityMap.put(q.getId(), q);
+            questions.add(q);
           }
         }
       }
@@ -75,6 +81,7 @@ public class JdbcQuestionDao implements QuestionDao {
       try (PreparedStatement stmt = connection.prepareStatement(sql)) {
         stmt.setObject(1, id);
         stmt.executeUpdate();
+        identityMap.remove(id);
       }
     } catch (SQLException | InterruptedException e) {
       throw new RuntimeException("Error deleting question", e);

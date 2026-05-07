@@ -3,8 +3,10 @@ package com.kizlyak.dao.impl;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.kizlyak.dao.QuizDao;
 import com.kizlyak.entity.Quiz;
@@ -12,6 +14,7 @@ import com.kizlyak.infrastructure.ConnectionPool;
 
 public class JdbcQuizDao implements QuizDao {
   private final ConnectionPool pool;
+  private final Map<UUID, Quiz> identityMap = new ConcurrentHashMap<>();
 
   public JdbcQuizDao(ConnectionPool pool) {
     this.pool = pool;
@@ -30,6 +33,7 @@ public class JdbcQuizDao implements QuizDao {
         stmt.setInt(3, quiz.getTimeLimitMinutes());
         stmt.setObject(4, quiz.getCreatedBy());
         stmt.executeUpdate();
+        identityMap.put(quiz.getId(), quiz);
       }
     } catch (SQLException | InterruptedException e) {
       throw new RuntimeException("Error saving quiz", e);
@@ -40,6 +44,10 @@ public class JdbcQuizDao implements QuizDao {
 
   @Override
   public Optional<Quiz> findById(UUID id) {
+    if (identityMap.containsKey(id)) {
+      return Optional.of(identityMap.get(id));
+    }
+
     String sql = "SELECT * FROM quizzes WHERE id = ?";
     Connection connection = null;
     try {
@@ -48,7 +56,9 @@ public class JdbcQuizDao implements QuizDao {
         stmt.setObject(1, id);
         try (ResultSet rs = stmt.executeQuery()) {
           if (rs.next()) {
-            return Optional.of(mapResultSetToQuiz(rs));
+            Quiz quiz = mapResultSetToQuiz(rs);
+            identityMap.put(quiz.getId(), quiz);
+            return Optional.of(quiz);
           }
         }
       }
@@ -70,7 +80,9 @@ public class JdbcQuizDao implements QuizDao {
       try (Statement stmt = connection.createStatement();
           ResultSet rs = stmt.executeQuery(sql)) {
         while (rs.next()) {
-          quizzes.add(mapResultSetToQuiz(rs));
+          Quiz quiz = mapResultSetToQuiz(rs);
+          identityMap.put(quiz.getId(), quiz);
+          quizzes.add(quiz);
         }
       }
     } catch (SQLException | InterruptedException e) {
@@ -90,6 +102,7 @@ public class JdbcQuizDao implements QuizDao {
       try (PreparedStatement stmt = connection.prepareStatement(sql)) {
         stmt.setObject(1, id);
         stmt.executeUpdate();
+        identityMap.remove(id);
       }
     } catch (SQLException | InterruptedException e) {
       throw new RuntimeException("Error deleting quiz", e);

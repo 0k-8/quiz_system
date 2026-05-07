@@ -1,6 +1,7 @@
 package com.kizlyak.entity;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class User {
   private UUID id;
@@ -10,6 +11,9 @@ public class User {
   private String passwordHash;
   private Role role;
   private UUID teamsId;
+
+  private Team team;
+  private Supplier<Team> teamLoader;
 
   public UUID getId() {
     return id;
@@ -65,5 +69,16 @@ public class User {
 
   public void setTeamsId(UUID teamsId) {
     this.teamsId = teamsId;
+  }
+
+  public Team getTeam() {
+    if (team == null && teamLoader != null) {
+      team = teamLoader.get();
+    }
+    return team;
+  }
+
+  public void setTeamLoader(Supplier<Team> teamLoader) {
+    this.teamLoader = teamLoader;
   }
 }

@@ -11,6 +11,8 @@ public interface TeamDao {
 
   Optional<Team> getTeamById(UUID id);
 
+  Optional<Team> findByName(String name);
+
   List<Team> getAllTeams();
 
   void delete(UUID id);
