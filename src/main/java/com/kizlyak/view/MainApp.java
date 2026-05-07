@@ -51,35 +51,30 @@ public class MainApp extends Application {
 
   public void showLogin() {
     LoginApp.show(primaryStage, authService, this);
-
   }
 
   public void showRegistration() {
     RegistrationApp.show(primaryStage, authService, this);
-
   }
 
   public void showMainMenu(User user) {
     MainMenuView.show(primaryStage, user, this);
-
   }
 
   public void showQuizSelection(User user) {
     QuizSelectionView.show(primaryStage, user, this, quizService);
-
   }
 
   public void showResults(User user) {
-      ResultsView.show(primaryStage, user, this, quizService);
-
+    ResultsView.show(primaryStage, user, this, quizService);
   }
 
   public void showTeamManagement(User user) {
-      TeamManagementView.show(primaryStage, user, this, authService);
-
+    TeamManagementView.show(primaryStage, user, this, authService);
   }
 
-  public void startQuizSession(User user, com.kizlyak.entity.Quiz quiz) {    QuizTakingView.show(primaryStage, user, this, quizService, quiz);
+  public void startQuizSession(User user, com.kizlyak.entity.Quiz quiz) {
+    QuizTakingView.show(primaryStage, user, this, quizService, quiz);
   }
 
   public AuthService getAuthService() {

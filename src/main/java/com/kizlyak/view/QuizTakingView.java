@@ -156,6 +156,8 @@ public class QuizTakingView {
         result.setQuizId(quiz.getId());
         result.setTeamId(user.getTeamsId());
         result.setScore(finalScore);
+        result.setCorrectAnswers(score);
+        result.setTotalQuestions(questions.size());
         result.setTimeSpentSeconds(timeSpent);
         result.setCompletedAt(LocalDateTime.now());
 

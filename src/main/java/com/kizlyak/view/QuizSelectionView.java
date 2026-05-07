@@ -62,6 +62,16 @@ public class QuizSelectionView {
 
     startBtn.setOnAction(
         e -> {
+          if (user.getTeamsId() == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Попередження");
+            alert.setHeaderText("Ви не в команді!");
+            alert.setContentText(
+                "Для проходження тесту ви повинні бути учасником команди. "
+                    + "Будь ласка, створіть команду або приєднайтеся до існуючої в меню 'Моя Команда'.");
+            alert.showAndWait();
+            return;
+          }
           Quiz selectedQuiz = quizListView.getSelectionModel().getSelectedItem();
           mainApp.startQuizSession(user, selectedQuiz);
         });

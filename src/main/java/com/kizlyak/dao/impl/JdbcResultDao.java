@@ -22,8 +22,8 @@ public class JdbcResultDao implements ResultDao {
   @Override
   public void save(Result result) {
     String sql =
-        "INSERT INTO results (id, team_id, quiz_id, score, time_spent_seconds, completed_at) VALUES"
-            + " (?, ?, ?, ?, ?, ?)";
+        "INSERT INTO results (id, team_id, quiz_id, score, correct_answers, total_questions, time_spent_seconds, completed_at) VALUES"
+            + " (?, ?, ?, ?, ?, ?, ?, ?)";
     Connection connection = null;
     try {
       connection = pool.getConnection();
@@ -32,8 +32,10 @@ public class JdbcResultDao implements ResultDao {
         stmt.setObject(2, result.getTeamId());
         stmt.setObject(3, result.getQuizId());
         stmt.setInt(4, result.getScore());
-        stmt.setInt(5, result.getTimeSpentSeconds());
-        stmt.setObject(6, result.getCompletedAt());
+        stmt.setInt(5, result.getCorrectAnswers());
+        stmt.setInt(6, result.getTotalQuestions());
+        stmt.setInt(7, result.getTimeSpentSeconds());
+        stmt.setObject(8, result.getCompletedAt());
         stmt.executeUpdate();
         identityMap.put(result.getId(), result);
       }
@@ -110,6 +112,8 @@ public class JdbcResultDao implements ResultDao {
     result.setTeamId(rs.getObject("team_id", UUID.class));
     result.setQuizId(rs.getObject("quiz_id", UUID.class));
     result.setScore(rs.getInt("score"));
+    result.setCorrectAnswers(rs.getInt("correct_answers"));
+    result.setTotalQuestions(rs.getInt("total_questions"));
     result.setTimeSpentSeconds(rs.getInt("time_spent_seconds"));
 
     Timestamp ts = rs.getTimestamp("completed_at");
