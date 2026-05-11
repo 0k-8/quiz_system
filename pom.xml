@@ -12,6 +12,7 @@
     <maven.compiler.target>22</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <spotless.version>3.4.0</spotless.version>
+    <jpackage.type>APP_IMAGE</jpackage.type>
   </properties>
 
   <dependencies>
@@ -141,7 +142,7 @@
             </goals>
             <configuration>
               <name>QuizSystem</name>
-              <type>APP_IMAGE</type>
+              <type>${jpackage.type}</type>
               <appVersion>1.0.0</appVersion>
               <destination>dist</destination>
               <input>${project.build.directory}/jpackage-input</input>

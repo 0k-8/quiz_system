@@ -19,7 +19,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            jpackage_type: APP_IMAGE
+            artifact_ext: zip
+          - os: macos-latest
+            jpackage_type: DMG
+            artifact_ext: dmg
+          - os: ubuntu-latest
+            jpackage_type: DEB
+            artifact_ext: deb
 
     steps:
       - name: Checkout code
@@ -33,7 +42,7 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: mvn clean install -DskipTests
+        run: mvn clean install -DskipTests -Djpackage.type=${{ matrix.jpackage_type }}
 
       - name: Archive Windows App Image
         if: matrix.os == 'windows-latest'
@@ -41,25 +50,12 @@ jobs:
         run: |
           Compress-Archive -Path dist/QuizSystem -DestinationPath dist/QuizSystem-Windows.zip
 
-      - name: Archive macOS App Image
-        if: matrix.os == 'macos-latest'
-        run: |
-          cd dist
-          zip -r QuizSystem-macOS.zip QuizSystem.app
-
-      - name: Archive Linux App Image
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          cd dist
-          zip -r QuizSystem-Linux.zip QuizSystem
-
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: app-image-${{ matrix.os }}
+          name: installers-${{ matrix.os }}
           path: |
             dist/*.zip
-            dist/*.msi
             dist/*.dmg
             dist/*.deb
           if-no-files-found: warn
@@ -70,36 +66,27 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
-      - name: Download Windows Artifact
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: app-image-windows-latest
-          path: release-files
-
-      - name: Download macOS Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-image-macos-latest
-          path: release-files
-
-      - name: Download Linux Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-image-ubuntu-latest
-          path: release-files
+          path: all-artifacts
+          pattern: installers-*
+          merge-multiple: true
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release-files/*.zip
+            all-artifacts/*.zip
+            all-artifacts/*.dmg
+            all-artifacts/*.deb
           body: |
             ## 🚀 Quiz System Release ${{ github.ref_name }}
             
-            ### 📦 Завантажте архів для вашої ОС, розпакуйте та запустіть QuizSystem:
-            - **Windows**: `QuizSystem-Windows.zip`
-            - **macOS**: `QuizSystem-macOS.zip`
-            - **Linux**: `QuizSystem-Linux.zip`
+            ### 📦 Завантажте інсталятор або архів для вашої ОС:
+            - **Windows**: `QuizSystem-Windows.zip` (Розпакуйте та запустіть QuizSystem.exe)
+            - **macOS**: `QuizSystem-1.0.0.dmg`
+            - **Linux**: `quiz-system_1.0.0_amd64.deb`
           draft: false
           prerelease: false
         env:

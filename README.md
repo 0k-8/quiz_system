@@ -21,14 +21,15 @@
 Ви можете завантажити готову програму, яка **не потребує встановлення Java** на ваш комп'ютер:
 
 1. Перейдіть на сторінку **[Останнього релізу](https://github.com/0k-8/quiz_system/releases/latest)**.
-2. Завантажте архів для вашої операційної системи:
-   - `QuizSystem-Windows.zip` — для Windows.
-   - `QuizSystem-macOS.zip` — для macOS.
-   - `QuizSystem-Linux.zip` — для Linux.
-3. Розпакуйте архів у зручне місце.
+2. Завантажте файл для вашої операційної системи:
+   - `QuizSystem-Windows.zip` — для Windows (Розпакуйте та запустіть `QuizSystem.exe`).
+   - `QuizSystem-1.0.0.dmg` — для macOS.
+   - `quiz-system_1.0.0_amd64.deb` — для Linux.
+3. Встановіть або розпакуйте програму.
 4. Запустіть файл:
    - **Windows**: `QuizSystem.exe`
-   - **macOS/Linux**: `QuizSystem`
+   - **macOS**: Відкрийте `.dmg` та перетягніть у `Applications`.
+   - **Linux**: Встановіть `.deb` пакет.
 
 ---
 
