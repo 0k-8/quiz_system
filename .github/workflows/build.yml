@@ -30,10 +30,12 @@ jobs:
       - name: Build Fat JAR with Maven
         run: mvn clean package -DskipTests
 
+      - name: Create dist directory
+        run: mkdir -p dist
+
       - name: Create Installer (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          # WiX is pre-installed on windows-latest runner
           jpackage `
             --type msi `
             --name "QuizSystem" `
@@ -73,9 +75,15 @@ jobs:
             --dest dist/ \
             --linux-shortcut
 
+      - name: List dist directory
+        run: ls -R dist/
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: installers-${{ matrix.os }}
-          path: dist/*.{msi,dmg,deb}
+          path: |
+            dist/*.msi
+            dist/*.dmg
+            dist/*.deb
           if-no-files-found: error
