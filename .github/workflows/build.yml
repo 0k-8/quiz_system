@@ -1,4 +1,4 @@
-name: Build Multi-Platform Installers
+name: Build and Release
 
 on:
   push:
@@ -32,66 +32,37 @@ jobs:
           distribution: 'oracle'
           cache: 'maven'
 
-      - name: Build Fat JAR with Maven
-        run: mvn clean package -DskipTests
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
 
-      - name: Create dist directory
-        run: mkdir -p dist
-
-      - name: Create Installer (Windows)
+      - name: Archive Windows App Image
         if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
-          jpackage `
-            --type msi `
-            --name "QuizSystem" `
-            --vendor "Kizlyak" `
-            --input target/ `
-            --main-jar quiz-system-1.0-SNAPSHOT.jar `
-            --main-class com.kizlyak.Launcher `
-            --win-dir-chooser `
-            --win-shortcut `
-            --win-menu `
-            --dest dist/
+          Compress-Archive -Path dist/QuizSystem -DestinationPath dist/QuizSystem-Windows.zip
 
-      - name: Create Installer (macOS)
+      - name: Archive macOS App Image
         if: matrix.os == 'macos-latest'
         run: |
-          jpackage \
-            --type dmg \
-            --name "QuizSystem" \
-            --vendor "Kizlyak" \
-            --input target/ \
-            --main-jar quiz-system-1.0-SNAPSHOT.jar \
-            --main-class com.kizlyak.Launcher \
-            --dest dist/
+          cd dist
+          zip -r QuizSystem-macOS.zip QuizSystem.app
 
-      - name: Create Installer (Linux)
+      - name: Archive Linux App Image
         if: matrix.os == 'ubuntu-latest'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y fakeroot
-          jpackage \
-            --type deb \
-            --name "quiz-system" \
-            --vendor "Kizlyak" \
-            --input target/ \
-            --main-jar quiz-system-1.0-SNAPSHOT.jar \
-            --main-class com.kizlyak.Launcher \
-            --dest dist/ \
-            --linux-shortcut
-
-      - name: List dist directory
-        run: ls -R dist/
+          cd dist
+          zip -r QuizSystem-Linux.zip QuizSystem
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: installers-${{ matrix.os }}
+          name: app-image-${{ matrix.os }}
           path: |
+            dist/*.zip
             dist/*.msi
             dist/*.dmg
             dist/*.deb
-          if-no-files-found: error
+          if-no-files-found: warn
 
   release:
     name: Create GitHub Release
@@ -102,43 +73,33 @@ jobs:
       - name: Download Windows Artifact
         uses: actions/download-artifact@v4
         with:
-          name: installers-windows-latest
+          name: app-image-windows-latest
           path: release-files
 
       - name: Download macOS Artifact
         uses: actions/download-artifact@v4
         with:
-          name: installers-macos-latest
+          name: app-image-macos-latest
           path: release-files
 
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
         with:
-          name: installers-ubuntu-latest
+          name: app-image-ubuntu-latest
           path: release-files
-
-      - name: List Release Files
-        run: ls -R release-files/
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release-files/*.msi
-            release-files/*.dmg
-            release-files/*.deb
+            release-files/*.zip
           body: |
             ## 🚀 Quiz System Release ${{ github.ref_name }}
             
-            ### 📦 Завантажити інсталятори:
-            - **Windows**: `QuizSystem-1.0.msi`
-            - **macOS**: `QuizSystem-1.0.dmg`
-            - **Linux**: `quiz-system_1.0_amd64.deb`
-            
-            ### 🛠 Як встановити:
-            1. **Windows**: Запустіть `.msi` файл і дотримуйтесь інструкцій інсталятора.
-            2. **macOS**: Відкрийте `.dmg` та перетягніть програму в папку `Applications`.
-            3. **Linux**: Виконайте `sudo dpkg -i quiz-system_1.0_amd64.deb` або відкрийте файл через менеджер пакетів.
+            ### 📦 Завантажте архів для вашої ОС, розпакуйте та запустіть QuizSystem:
+            - **Windows**: `QuizSystem-Windows.zip`
+            - **macOS**: `QuizSystem-macOS.zip`
+            - **Linux**: `QuizSystem-Linux.zip`
           draft: false
           prerelease: false
         env:
