@@ -1,0 +1,81 @@
+name: Build Multi-Platform Installers
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 22
+        uses: actions/setup-java@v4
+        with:
+          java-version: '22'
+          distribution: 'oracle'
+          cache: 'maven'
+
+      - name: Build Fat JAR with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Create Installer (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          # WiX is pre-installed on windows-latest runner
+          jpackage `
+            --type msi `
+            --name "QuizSystem" `
+            --vendor "Kizlyak" `
+            --input target/ `
+            --main-jar quiz-system-1.0-SNAPSHOT.jar `
+            --main-class com.kizlyak.Launcher `
+            --win-dir-chooser `
+            --win-shortcut `
+            --win-menu `
+            --dest dist/
+
+      - name: Create Installer (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          jpackage \
+            --type dmg \
+            --name "QuizSystem" \
+            --vendor "Kizlyak" \
+            --input target/ \
+            --main-jar quiz-system-1.0-SNAPSHOT.jar \
+            --main-class com.kizlyak.Launcher \
+            --dest dist/
+
+      - name: Create Installer (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot
+          jpackage \
+            --type deb \
+            --name "quiz-system" \
+            --vendor "Kizlyak" \
+            --input target/ \
+            --main-jar quiz-system-1.0-SNAPSHOT.jar \
+            --main-class com.kizlyak.Launcher \
+            --dest dist/ \
+            --linux-shortcut
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.os }}
+          path: dist/*.{msi,dmg,deb}
+          if-no-files-found: error

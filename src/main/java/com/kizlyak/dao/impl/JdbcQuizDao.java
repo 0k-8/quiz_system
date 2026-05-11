@@ -1,5 +1,8 @@
 package com.kizlyak.dao.impl;
 
+import com.kizlyak.dao.QuizDao;
+import com.kizlyak.entity.Quiz;
+import com.kizlyak.infrastructure.ConnectionPool;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,10 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.kizlyak.dao.QuizDao;
-import com.kizlyak.entity.Quiz;
-import com.kizlyak.infrastructure.ConnectionPool;
 
 public class JdbcQuizDao implements QuizDao {
   private final ConnectionPool pool;

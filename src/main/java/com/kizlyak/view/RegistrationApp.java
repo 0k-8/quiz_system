@@ -1,5 +1,7 @@
 package com.kizlyak.view;
 
+import com.kizlyak.service.AuthService;
+import com.kizlyak.viewmodel.RegistrationViewModel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -11,11 +13,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import com.kizlyak.service.AuthService;
-
 public class RegistrationApp {
 
   public static void show(Stage stage, AuthService authService, MainApp mainApp) {
+    RegistrationViewModel viewModel = new RegistrationViewModel(authService);
     stage.setTitle("⟨ Quiz System ⟩ Реєстрація");
 
     GridPane gridPane = new GridPane();
@@ -57,29 +58,10 @@ public class RegistrationApp {
           String email = emailField.getText().trim();
           String pass = passwordField.getText();
 
-          // ВАЛІДАЦІЯ
-          if (fName.isEmpty() || lName.isEmpty() || email.isEmpty() || pass.isEmpty()) {
-            messageLabel.setStyle("-fx-text-fill: red");
-            messageLabel.setText("Всі поля мають бути заповнені!");
-            return;
-          }
-
-          if (!email.contains("@") || !email.contains(".")) {
-            messageLabel.setStyle("-fx-text-fill: red");
-            messageLabel.setText("Невірний формат Email!");
-            return;
-          }
-
-          if (pass.length() < 6) {
-            messageLabel.setStyle("-fx-text-fill: red");
-            messageLabel.setText("Пароль занадто короткий (мін. 6)!");
-            return;
-          }
-
           try {
-            authService.register(fName, lName, email, pass);
+            viewModel.register(fName, lName, email, pass);
             messageLabel.setStyle("-fx-text-fill: green");
-            messageLabel.setText("Аккаунт створено! ");
+            messageLabel.setText("Аккаунт створено!");
           } catch (Exception ex) {
             messageLabel.setStyle("-fx-text-fill: red");
             messageLabel.setText(ex.getMessage());

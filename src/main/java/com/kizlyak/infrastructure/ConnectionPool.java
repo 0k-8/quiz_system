@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
+import java.util.concurrent.TimeUnit;
 import org.flywaydb.core.Flyway;
 
 public class ConnectionPool {
@@ -75,7 +75,11 @@ public class ConnectionPool {
   }
 
   public Connection getConnection() throws InterruptedException {
-    return pool.take();
+    Connection connection = pool.poll(5, TimeUnit.SECONDS);
+    if (connection == null) {
+      throw new RuntimeException("Не вдалося отримати з'єднання з базою даних (тайм-аут)");
+    }
+    return connection;
   }
 
   public void releaseConnection(Connection connection) {

@@ -1,9 +1,8 @@
 package com.kizlyak.dao;
 
+import com.kizlyak.entity.Question;
 import java.util.List;
 import java.util.UUID;
-
-import com.kizlyak.entity.Question;
 
 public interface QuestionDao {
   void saveQuestion(Question question);

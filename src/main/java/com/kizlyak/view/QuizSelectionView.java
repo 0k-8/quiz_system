@@ -1,21 +1,22 @@
 package com.kizlyak.view;
 
-import java.util.List;
+import com.kizlyak.entity.Quiz;
+import com.kizlyak.entity.User;
+import com.kizlyak.service.QuizService;
+import com.kizlyak.viewmodel.QuizSelectionViewModel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import com.kizlyak.entity.Quiz;
-import com.kizlyak.entity.User;
-import com.kizlyak.service.QuizService;
-
 public class QuizSelectionView {
 
   public static void show(Stage stage, User user, MainApp mainApp, QuizService quizService) {
+    QuizSelectionViewModel viewModel = new QuizSelectionViewModel(quizService);
     stage.setTitle("⟨ Quiz System ⟩ Вибір тесту");
 
     VBox layout = new VBox(15);
@@ -25,10 +26,14 @@ public class QuizSelectionView {
     Label titleLabel = new Label("Оберіть тест");
     titleLabel.setFont(Font.font(22));
 
-    // Список для відображення квізів
-    ListView<Quiz> quizListView = new ListView<>();
+    HBox searchBox = new HBox(10);
+    searchBox.setAlignment(Pos.CENTER);
+    TextField searchField = new TextField();
+    searchField.setPromptText("Пошук тестів...");
+    Button searchBtn = new Button("Шукати");
+    searchBox.getChildren().addAll(searchField, searchBtn);
 
-    // Кастомне відображення (щоб показувати Title замість адреси об'єкта)
+    ListView<Quiz> quizListView = new ListView<>();
     quizListView.setCellFactory(
         param ->
             new ListCell<>() {
@@ -43,15 +48,18 @@ public class QuizSelectionView {
               }
             });
 
-    // Завантаження даних
-    List<Quiz> quizzes = quizService.getAllQuizzes();
-    quizListView.getItems().addAll(quizzes);
+    quizListView.getItems().addAll(viewModel.getAllQuizzes());
+
+    searchBtn.setOnAction(
+        e -> {
+          quizListView.getItems().clear();
+          quizListView.getItems().addAll(viewModel.searchQuizzes(searchField.getText().trim()));
+        });
 
     Button startBtn = new Button("Почати тест");
     startBtn.setPrefWidth(200);
-    startBtn.setDisable(true); // Вимкнена, поки не обрано квіз
+    startBtn.setDisable(true);
 
-    // Активуємо кнопку при виборі
     quizListView
         .getSelectionModel()
         .selectedItemProperty()
@@ -66,9 +74,7 @@ public class QuizSelectionView {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Попередження");
             alert.setHeaderText("Ви не в команді!");
-            alert.setContentText(
-                "Для проходження тесту ви повинні бути учасником команди. "
-                    + "Будь ласка, створіть команду або приєднайтеся до існуючої в меню 'Моя Команда'.");
+            alert.setContentText("Для проходження тесту ви повинні бути учасником команди.");
             alert.showAndWait();
             return;
           }
@@ -79,9 +85,9 @@ public class QuizSelectionView {
     Button backBtn = new Button("Назад до меню");
     backBtn.setOnAction(e -> mainApp.showMainMenu(user));
 
-    layout.getChildren().addAll(titleLabel, quizListView, startBtn, backBtn);
+    layout.getChildren().addAll(titleLabel, searchBox, quizListView, startBtn, backBtn);
 
-    Scene scene = new Scene(layout, 400, 500);
+    Scene scene = new Scene(layout, 400, 550);
     stage.setScene(scene);
   }
 }

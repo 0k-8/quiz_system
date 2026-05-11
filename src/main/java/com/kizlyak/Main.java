@@ -1,8 +1,7 @@
 package com.kizlyak;
 
-import javafx.application.Application;
-
 import com.kizlyak.view.MainApp;
+import javafx.application.Application;
 
 public class Main {
 

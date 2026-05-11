@@ -1,5 +1,8 @@
 package com.kizlyak.dao.impl;
 
+import com.kizlyak.dao.TeamDao;
+import com.kizlyak.entity.Team;
+import com.kizlyak.infrastructure.ConnectionPool;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,10 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.kizlyak.dao.TeamDao;
-import com.kizlyak.entity.Team;
-import com.kizlyak.infrastructure.ConnectionPool;
 
 public class JdbcTeamDao implements TeamDao {
 

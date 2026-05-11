@@ -1,5 +1,7 @@
 package com.kizlyak.view;
 
+import com.kizlyak.service.AuthService;
+import com.kizlyak.viewmodel.LoginViewModel;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -11,11 +13,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import com.kizlyak.service.AuthService;
-
 public class LoginApp {
 
   public static void show(Stage stage, AuthService authService, MainApp mainApp) {
+    LoginViewModel viewModel = new LoginViewModel(authService);
     stage.setTitle("⟨ Quiz System ⟩ Вхід");
 
     GridPane grid = new GridPane();
@@ -52,25 +53,29 @@ public class LoginApp {
           String email = emailField.getText().trim();
           String password = passwordField.getText();
 
-          // ВАЛІДАЦІЯ: Перевірка на пусті поля
           if (email.isEmpty() || password.isEmpty()) {
             messageLabel.setStyle("-fx-text-fill: red;");
             messageLabel.setText("Заповніть пошту та пароль!");
             return;
           }
 
-          authService
-              .login(email, password)
-              .ifPresentOrElse(
-                  user -> {
-                    messageLabel.setStyle("-fx-text-fill: green;");
-                    messageLabel.setText("Вітаємо, " + user.getFirstName());
-                    mainApp.showMainMenu(user);
-                  },
-                  () -> {
-                    messageLabel.setText("Невірний логін або пароль!");
-                    messageLabel.setStyle("-fx-text-fill: red;");
-                  });
+          try {
+            viewModel
+                .login(email, password)
+                .ifPresentOrElse(
+                    user -> {
+                      messageLabel.setStyle("-fx-text-fill: green;");
+                      messageLabel.setText("Вітаємо, " + user.getFirstName());
+                      mainApp.showMainMenu(user);
+                    },
+                    () -> {
+                      messageLabel.setText("Невірний логін або пароль!");
+                      messageLabel.setStyle("-fx-text-fill: red;");
+                    });
+          } catch (Exception ex) {
+            messageLabel.setStyle("-fx-text-fill: red;");
+            messageLabel.setText("Помилка: " + ex.getMessage());
+          }
         });
 
     switchToReg.setOnAction(e -> mainApp.showRegistration());

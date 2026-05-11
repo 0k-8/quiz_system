@@ -1,0 +1,2 @@
+ALTER TABLE results ADD COLUMN user_id UUID;
+ALTER TABLE results ADD CONSTRAINT fk_result_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL;

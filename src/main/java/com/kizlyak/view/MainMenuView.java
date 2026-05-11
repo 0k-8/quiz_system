@@ -1,5 +1,6 @@
 package com.kizlyak.view;
 
+import com.kizlyak.entity.User;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -8,8 +9,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
-import com.kizlyak.entity.User;
 
 public class MainMenuView {
 

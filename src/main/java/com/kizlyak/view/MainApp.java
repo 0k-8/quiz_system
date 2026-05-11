@@ -1,9 +1,5 @@
 package com.kizlyak.view;
 
-import java.sql.SQLException;
-import javafx.application.Application;
-import javafx.stage.Stage;
-
 import com.kizlyak.dao.QuestionDao;
 import com.kizlyak.dao.QuizDao;
 import com.kizlyak.dao.ResultDao;
@@ -16,17 +12,27 @@ import com.kizlyak.dao.impl.JdbcTeamDao;
 import com.kizlyak.dao.impl.JdbcUserDao;
 import com.kizlyak.entity.User;
 import com.kizlyak.infrastructure.ConnectionPool;
+import com.kizlyak.infrastructure.PasswordHasher;
 import com.kizlyak.service.AuthService;
 import com.kizlyak.service.QuizService;
+import com.kizlyak.service.ResultService;
+import com.kizlyak.service.TeamService;
+import com.kizlyak.service.UserService;
+import java.sql.SQLException;
+import javafx.application.Application;
+import javafx.stage.Stage;
 
 public class MainApp extends Application {
   private AuthService authService;
   private QuizService quizService;
+  private UserService userService;
+  private TeamService teamService;
+  private ResultService resultService;
+  private PasswordHasher passwordHasher;
   private Stage primaryStage;
 
   @Override
   public void init() throws SQLException {
-    // Ініціалізація пулу з'єднань
     ConnectionPool pool = new ConnectionPool();
 
     UserDao userDao = new JdbcUserDao(pool);
@@ -35,9 +41,12 @@ public class MainApp extends Application {
     ResultDao resultDao = new JdbcResultDao(pool);
     TeamDao teamDao = new JdbcTeamDao(pool);
 
-    // Ініціалізація сервісів
-    this.authService = new AuthService(userDao, teamDao);
-    this.quizService = new QuizService(quizDao, questionDao, resultDao);
+    this.passwordHasher = new PasswordHasher();
+    this.userService = new UserService(userDao);
+    this.teamService = new TeamService(teamDao);
+    this.resultService = new ResultService(resultDao);
+    this.quizService = new QuizService(quizDao, questionDao);
+    this.authService = new AuthService(userService, passwordHasher);
 
     System.out.println("Система ініціалізована успішно.");
   }
@@ -66,24 +75,34 @@ public class MainApp extends Application {
   }
 
   public void showResults(User user) {
-    ResultsView.show(primaryStage, user, this, quizService);
+    ResultsView.show(primaryStage, user, this, resultService);
   }
 
   public void showTeamManagement(User user) {
-    TeamManagementView.show(primaryStage, user, this, authService);
+    TeamManagementView.show(primaryStage, user, this, teamService, userService);
   }
 
   public void startQuizSession(User user, com.kizlyak.entity.Quiz quiz) {
-    QuizTakingView.show(primaryStage, user, this, quizService, quiz);
+    QuizTakingView.show(primaryStage, user, this, quizService, resultService, quiz);
   }
 
   public AuthService getAuthService() {
-
     return authService;
   }
 
   public QuizService getQuizService() {
-
     return quizService;
+  }
+
+  public ResultService getResultService() {
+    return resultService;
+  }
+
+  public TeamService getTeamService() {
+    return teamService;
+  }
+
+  public UserService getUserService() {
+    return userService;
   }
 }

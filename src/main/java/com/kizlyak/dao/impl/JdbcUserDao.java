@@ -1,5 +1,9 @@
 package com.kizlyak.dao.impl;
 
+import com.kizlyak.dao.UserDao;
+import com.kizlyak.entity.Role;
+import com.kizlyak.entity.User;
+import com.kizlyak.infrastructure.ConnectionPool;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,11 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.kizlyak.dao.UserDao;
-import com.kizlyak.entity.Role;
-import com.kizlyak.entity.User;
-import com.kizlyak.infrastructure.ConnectionPool;
 
 public class JdbcUserDao implements UserDao {
   private final ConnectionPool pool;
@@ -24,8 +23,8 @@ public class JdbcUserDao implements UserDao {
   @Override
   public void saveUser(User user) {
     String sql =
-        "MERGE INTO users (id, last_name, first_name, email, password_hash, role, team_id) KEY(id) VALUES"
-            + " (?, ?, ?, ?, ?, ?, ?)";
+        "MERGE INTO users (id, last_name, first_name, email, password_hash, role, team_id) KEY(id)"
+            + " VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     Connection connection = null;
     try {

@@ -1,10 +1,9 @@
 package com.kizlyak.dao;
 
+import com.kizlyak.entity.Quiz;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import com.kizlyak.entity.Quiz;
 
 public interface QuizDao {
   void saveQuiz(Quiz quiz);
