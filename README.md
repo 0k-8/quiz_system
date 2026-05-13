@@ -22,12 +22,12 @@
 
 1. Перейдіть на сторінку **[Останнього релізу](https://github.com/0k-8/quiz_system/releases/latest)**.
 2. Завантажте файл для вашої операційної системи:
-   - `QuizSystem-Windows.zip` — для Windows (Розпакуйте та запустіть `QuizSystem.exe`).
+   - `QuizSystem-Windows.zip` — для Windows (Розпакуйте та запустіть `QuizSystem.exe` **від імені адміністратора**).
    - `QuizSystem-1.0.0.dmg` — для macOS.
    - `quiz-system_1.0.0_amd64.deb` — для Linux.
 3. Встановіть або розпакуйте програму.
 4. Запустіть файл:
-   - **Windows**: `QuizSystem.exe`
+   - **Windows**: `QuizSystem.exe` (запустити від імені адміністратора)
    - **macOS**: Відкрийте `.dmg` та перетягніть у `Applications`.
    - **Linux**: Встановіть `.deb` пакет.
 
@@ -55,7 +55,7 @@
    ```bash
    mvn clean package
    ```
-2. **Запуск через Maven**:
+2. **Запуск через Maven** (виконуйте в терміналі з правами адміністратора):
    ```bash
    mvn exec:java -Dexec.mainClass="com.kizlyak.Launcher"
    ```
